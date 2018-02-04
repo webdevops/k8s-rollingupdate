@@ -6,9 +6,9 @@ GOBUILD = go build --ldflags '-w'
 ALL = \
 	$(foreach arch,64 32,\
 	$(foreach suffix,linux osx win.exe,\
-		build/k8s-rollout-trigger-$(arch)-$(suffix))) \
+		build/k8s-rollingupdate-$(arch)-$(suffix))) \
 	$(foreach arch,arm arm64,\
-		build/k8s-rollout-trigger-$(arch)-linux)
+		build/k8s-rollingupdate-$(arch)-linux)
 
 all: build
 
@@ -21,28 +21,28 @@ clean:
 # suffix itself is taken
 win.exe = windows
 osx = darwin
-build/k8s-rollout-trigger-64-%: $(SOURCE)
+build/k8s-rollingupdate-64-%: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=$(firstword $($*) $*) GOARCH=amd64 $(GOBUILD) -o $@
 
-build/k8s-rollout-trigger-32-%: $(SOURCE)
+build/k8s-rollingupdate-32-%: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=$(firstword $($*) $*) GOARCH=386 $(GOBUILD) -o $@
 
-build/k8s-rollout-trigger-arm-linux: $(SOURCE)
+build/k8s-rollingupdate-arm-linux: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 $(GOBUILD) -o $@
 
-build/k8s-rollout-trigger-arm64-linux: $(SOURCE)
+build/k8s-rollingupdate-arm64-linux: $(SOURCE)
 	@mkdir -p $(@D)
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GOBUILD) -o $@
 
 release: build
-	github-release release -u webdevops -r k8s-rollout-trigger -t "$(TAG)" -n "$(TAG)" --description "$(TAG)"
+	github-release release -u webdevops -r k8s-rollingupdate -t "$(TAG)" -n "$(TAG)" --description "$(TAG)"
 	@for x in $(ALL); do \
 		echo "Uploading $$x" && \
 		github-release upload -u webdevops \
-                              -r k8s-rollout-trigger \
+                              -r k8s-rollingupdate \
                               -t $(TAG) \
                               -f "$$x" \
                               -n "$$(basename $$x)"; \
